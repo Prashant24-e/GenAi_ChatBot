@@ -21,20 +21,24 @@ def extract_text(content):
     else:
         return str(content)
 
+# now for to store the data that has been talked aboiut before we are gonna use st.session_state_messages
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# to show the displayued data we are be using for loop 
+
+for messages in st.session_state.messages:
+    role = messages["role"]
+    content = messages["content"]
+    st.chat_message(role).markdown(content)
+
 
 query = st.chat_input("Ask Anything")
 if query:
+    st.session_state.messages.append({"role":"user","content":query})
     st.chat_message("user").markdown(query)
     res = llm.invoke(query)
     st.chat_message("ai").markdown(extract_text(res.content))
-
-# while True:
-#     query = input("User: ")
-
-#     if query in ["exit","quit","close"]:
-#         print("gooodbye!!")
-#         break
-#     res = llm.invoke(query)
-#     print("Ai:",res.content.text)
+    st.session_state.messages.append({"role":"ai","content":extract_text(res.content)})
 
 
