@@ -1,44 +1,76 @@
 from dotenv import load_dotenv
+import os
+import streamlit as st
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 load_dotenv()
 
-from langchain_google_genai import ChatGoogleGenerativeAI
-llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite")
-import streamlit as st
+# Get API key from Streamlit Secrets or local .env
+api_key = st.secrets.get("GOOGLE_API_KEY", os.getenv("GOOGLE_API_KEY"))
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-3.5-flash-lite",
+    google_api_key=api_key
+)
 
 st.title("AskBuddy 🤖 AI QNA Bot")
-st.markdown("My QNA bot with langchain and google gemini !")
+st.markdown("My QNA bot with LangChain and Google Gemini!")
 
 
 def extract_text(content):
-    """Extracts plain text from Google Generative AI response content."""
+    """Extract plain text from Google Generative AI response content."""
+
     if isinstance(content, str):
         return content
+
     elif isinstance(content, list):
         return "\n".join(
             part.get("text", "") if isinstance(part, dict) else str(part)
             for part in content
         )
-    else:
-        return str(content)
 
-# now for to store the data that has been talked aboiut before we are gonna use st.session_state_messages
+    return str(content)
+
+
+# Store conversation history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# to show the displayued data we are be using for loop 
 
-for messages in st.session_state.messages:
-    role = messages["role"]
-    content = messages["content"]
+# Display previous messages
+for message in st.session_state.messages:
+    role = message["role"]
+    content = message["content"]
+
     st.chat_message(role).markdown(content)
 
 
+# Chat input
 query = st.chat_input("Ask Anything")
+
 if query:
-    st.session_state.messages.append({"role":"user","content":query})
+
+    # Display user message
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": query
+        }
+    )
+
     st.chat_message("user").markdown(query)
-    res = llm.invoke(query)
-    st.chat_message("ai").markdown(extract_text(res.content))
-    st.session_state.messages.append({"role":"ai","content":extract_text(res.content)})
 
+    # Get response from Gemini
+    response = llm.invoke(query)
+    answer = extract_text(response.content)
 
+    # Display AI response
+    st.chat_message("assistant").markdown(answer)
+
+    # Store AI response
+    st.session_state.messages.append(
+        {
+            "role": "assistant",
+            "content": answer
+        }
+    )
