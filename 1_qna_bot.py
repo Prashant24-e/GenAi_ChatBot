@@ -9,8 +9,7 @@ load_dotenv()
 api_key = st.secrets.get("GOOGLE_API_KEY", os.getenv("GOOGLE_API_KEY"))
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-3.5-flash-lite",
-    google_api_key=api_key
+    model="gemini-3.5-flash-lite"
 )
 
 st.title("AskBuddy 🤖 AI QNA Bot")
