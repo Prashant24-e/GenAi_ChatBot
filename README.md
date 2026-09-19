@@ -6,7 +6,7 @@ The application provides an interactive chat interface where users can ask quest
 
 ## 🚀 Live Demo
 
-🔗 **Coming soon — deployed using Streamlit Community Cloud**
+🔗 (https://chatbot-genai-g.streamlit.app/)
 
 ## ✨ Features
 
